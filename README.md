@@ -122,6 +122,49 @@ To customize, edit `lost-in-europe/.env` after it’s created by the `start.sh` 
   - `400 Bad Request`: Invalid input data.
   - `500 Internal Server Error`: Server-side error.
 
+- **Example cURL Commands:**
+  - Basic creation:
+    ```sh
+    curl -X POST http://localhost:3000/itinerary \
+    -H "Content-Type: application/json" \
+    -d '{
+      "name": "My Trip",
+      "tickets": [
+        {
+          "from": "Street 01",
+          "to": "Street 02",
+          "details": {
+            "transport": "train",
+            "code": "RJX765",
+            "platform": "3",
+            "gate": "A",
+            "seat": "17C",
+            "extra": "Extra info from location",
+            "toExtra": "Extra info to location",
+            "others": "Something"
+          }
+        },
+        {
+          "from": "Street 02",
+          "to": "Street 03"
+        }
+      ]
+    }'
+    ```
+  - Minimal creation (without details):
+      ```sh
+      curl -X POST http://localhost:3000/itinerary \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Simple Trip",
+        "tickets": [
+          {
+            "from": "City A",
+            "to": "City B"
+          }
+        ]
+      }'
+      ```
 ### 2. Retrieve All Itineraries
 - **Endpoint**: `GET /itinerary`
 - **Description**: Retrieves a list of all itineraries with tickets and human-readable descriptions.
@@ -152,6 +195,11 @@ To customize, edit `lost-in-europe/.env` after it’s created by the `start.sh` 
     ]
     ```
   - `500 Internal Server Error`: Server-side error.
+- **Example cURL Commands:**
+    - Basic retrieval:
+     ```sh
+     curl -X GET http://localhost:3000/itinerary
+     ```
 
 ### 3. Retrieve a Single Itinerary
 - **Endpoint**: `GET /itinerary/{id}`
@@ -192,7 +240,11 @@ To customize, edit `lost-in-europe/.env` after it’s created by the `start.sh` 
     ```
   - `404 Not Found`: Itinerary not found.
   - `500 Internal Server Error`: Server-side error.
-
+- **Example cURL Commands:**
+    - Retrieve by ID:
+     ```sh
+     curl -X GET http://localhost:3000/itinerary/1
+     ```
 ## Schemas
 
 - **CreateTicketDto**:
