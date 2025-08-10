@@ -11,6 +11,32 @@ import {
 
 import { Itinerary } from './itinerary.entity';
 
+export type TicketTransport =
+  | 'train'
+  | 'bus'
+  | 'plane'
+  | 'flight'
+  | 'ship'
+  | 'boat'
+  | 'car'
+  | 'taxi'
+  | 'uber'
+  | 'bike'
+  | 'walk'
+  | 'airplane bus'
+  | 'other';
+
+export type TicketDetails = {
+  transport?: TicketTransport;
+  code?: string;
+  platform?: string;
+  seat?: string;
+  gate?: string;
+  extra?: string;
+
+  toExtra?: string;
+};
+
 @Index('idx_itinerary', ['itinerary'])
 @Entity('tickets')
 export class Ticket {
@@ -24,7 +50,7 @@ export class Ticket {
   to: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  details: Record<string, unknown>;
+  details: TicketDetails;
 
   @Column({ type: 'integer', nullable: true })
   position: number;
