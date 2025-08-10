@@ -203,8 +203,9 @@ Ensure that each 'from' and 'to' sequence forms a straight path without repeatin
   public ticketToTextBuildExtrasLine(details: TicketDetails): string {
     const seat = details.seat ? `Seat number ${details.seat}` : '';
     const fromExtra = details.extra ? `${details.extra}` : '';
+    const others = details.others ? `${details.others}` : '';
 
-    const extrasArr = [seat, fromExtra].filter(Boolean);
+    const extrasArr = [seat, fromExtra, others].filter(Boolean);
     return extrasArr.length ? ` ${extrasArr.join(', ')}` : '';
   }
 }

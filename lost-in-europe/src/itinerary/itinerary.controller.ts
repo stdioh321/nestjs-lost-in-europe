@@ -14,24 +14,60 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 
 import { ItineraryService } from './itinerary.service';
 import { CreateItineraryDto } from './dto/create-itinerary.dto';
 import { Itinerary } from './entities/itinerary.entity';
 
+const BadRequestSchema = {
+  type: 'object',
+  properties: {
+    statusCode: { type: 'number', example: 400 },
+    message: {
+      type: 'array',
+      items: { type: 'string' },
+      example: ['Invalid input data'],
+    },
+    error: { type: 'string', example: 'Bad Request' },
+  },
+};
+
+const NotFoundSchema = {
+  type: 'object',
+  properties: {
+    statusCode: { type: 'number', example: 404 },
+    message: { type: 'string', example: 'Itinerary with id [1234] not found' },
+    error: { type: 'string', example: 'Not Found' },
+  },
+};
+
+const InternalServerErrorSchema = {
+  type: 'object',
+  properties: {
+    statusCode: { type: 'number', example: 500 },
+    message: { type: 'string', example: 'Internal server error' },
+    error: { type: 'string', example: 'Internal Server Error' },
+  },
+};
+
+@ApiTags('Itineraries')
 @Controller('itinerary')
 export class ItineraryController {
   constructor(private readonly itineraryService: ItineraryService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create itinerary with tickets and sort' })
+  @ApiOperation({
+    summary: 'Create a new itinerary',
+    description:
+      'Creates an itinerary with sorted tickets based on the provided data.',
+  })
   @ApiBody({
     type: CreateItineraryDto,
     examples: {
-      example1: {
-        summary: 'Complete',
+      complete: {
+        summary: 'Complete itinerary with multiple tickets',
         value: {
           tickets: [
             {
@@ -51,156 +87,15 @@ export class ItineraryController {
               from: 'Street 02',
               to: 'Street 03',
             },
-            {
-              from: 'Street 03',
-              to: 'Street 04',
-              details: {
-                transport: 'bus',
-                seat: '10B',
-              },
-            },
-            {
-              from: 'Street 04',
-              to: 'Street 05',
-              details: {
-                transport: 'plane',
-                code: 'PLN-998',
-                gate: '7',
-              },
-            },
-            {
-              from: 'Street 05',
-              to: 'Street 06',
-            },
-            {
-              from: 'Street 06',
-              to: 'Street 07',
-              details: {
-                transport: 'flight',
-                code: 'FL-456',
-                gate: '12',
-                seat: '3A',
-              },
-            },
-            {
-              from: 'Street 07',
-              to: 'Street 08',
-            },
-            {
-              from: 'Street 08',
-              to: 'Street 09',
-              details: {
-                transport: 'ferry',
-                code: 'FER-321',
-                extra: 'Ferry extra info',
-              },
-            },
-            {
-              from: 'Street 09',
-              to: 'Street 10',
-            },
-            {
-              from: 'Street 10',
-              to: 'Street 11',
-              details: {
-                transport: 'train',
-                code: 'TR-444',
-                platform: '1',
-                seat: '21A',
-                toExtra: 'Next station info',
-              },
-            },
-            {
-              from: 'Street 11',
-              to: 'Street 12',
-            },
-            {
-              from: 'Street 12',
-              to: 'Street 13',
-              details: {
-                transport: 'bus',
-                code: 'BUS-007',
-                seat: '15C',
-              },
-            },
-            {
-              from: 'Street 13',
-              to: 'Street 14',
-            },
-            {
-              from: 'Street 14',
-              to: 'Street 15',
-              details: {
-                transport: 'plane',
-                code: 'PLN-123',
-                gate: '9',
-              },
-            },
-            {
-              from: 'Street 15',
-              to: 'Street 16',
-              details: {
-                transport: 'train',
-                platform: '4',
-              },
-            },
-            {
-              from: 'Street 16',
-              to: 'Street 17',
-            },
-            {
-              from: 'Street 17',
-              to: 'Street 18',
-              details: {
-                transport: 'bus',
-                extra: 'Bus stop info',
-              },
-            },
-            {
-              from: 'Street 18',
-              to: 'Street 19',
-              details: {
-                transport: 'boat',
-                code: 'BT-789',
-                seat: '6B',
-              },
-            },
-            {
-              from: 'Street 19',
-              to: 'Street 20',
-            },
-            {
-              from: 'Street 20',
-              to: 'Street 21',
-              details: {
-                transport: 'train',
-                code: 'RJX999',
-                platform: '2',
-                gate: 'B',
-                seat: '5D',
-                extra: 'Final trip extra',
-                toExtra: 'Destination extra',
-              },
-            },
           ],
         },
       },
-      example2: {
-        summary: 'Simple',
+      simple: {
+        summary: 'Simple itinerary with minimal tickets',
         value: {
           tickets: [
-            {
-              tickets: [
-                {
-                  from: 'Street 01',
-                  to: 'Street 02',
-                },
-                {
-                  from: 'Street 02',
-                  to: 'Street 03',
-                },
-              ],
-            },
+            { from: 'Street 01', to: 'Street 02' },
+            { from: 'Street 02', to: 'Street 03' },
           ],
         },
       },
@@ -208,908 +103,92 @@ export class ItineraryController {
   })
   @ApiCreatedResponse({
     description: 'Itinerary created successfully',
-    schema: {
-      example: {
-        id: 9,
-        name: null,
-        tickets: [
-          {
-            id: 104,
-            from: 'Street 01',
-            to: 'Street 02',
-            details: {
-              transport: 'train',
-              code: 'RJX765',
-              platform: '3',
-              gate: 'A',
-              seat: '17C',
-              extra: 'Extra info from location',
-              toExtra: 'Extra info to location',
-            },
-            position: 1,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 105,
-            from: 'Street 02',
-            to: 'Street 03',
-            details: null,
-            position: 2,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 106,
-            from: 'Street 03',
-            to: 'Street 04',
-            details: {
-              transport: 'bus',
-              seat: '10B',
-            },
-            position: 3,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 107,
-            from: 'Street 04',
-            to: 'Street 05',
-            details: {
-              transport: 'plane',
-              code: 'PLN-998',
-              gate: '7',
-            },
-            position: 4,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 108,
-            from: 'Street 05',
-            to: 'Street 06',
-            details: null,
-            position: 5,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 109,
-            from: 'Street 06',
-            to: 'Street 07',
-            details: {
-              transport: 'flight',
-              code: 'FL-456',
-              gate: '12',
-              seat: '3A',
-            },
-            position: 6,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 110,
-            from: 'Street 07',
-            to: 'Street 08',
-            details: null,
-            position: 7,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 111,
-            from: 'Street 08',
-            to: 'Street 09',
-            details: {
-              transport: 'ferry',
-              code: 'FER-321',
-              extra: 'Ferry extra info',
-            },
-            position: 8,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 112,
-            from: 'Street 09',
-            to: 'Street 10',
-            details: null,
-            position: 9,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 113,
-            from: 'Street 10',
-            to: 'Street 11',
-            details: {
-              transport: 'train',
-              code: 'TR-444',
-              platform: '1',
-              seat: '21A',
-              toExtra: 'Next station info',
-            },
-            position: 10,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 114,
-            from: 'Street 11',
-            to: 'Street 12',
-            details: null,
-            position: 11,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 115,
-            from: 'Street 12',
-            to: 'Street 13',
-            details: {
-              transport: 'bus',
-              code: 'BUS-007',
-              seat: '15C',
-            },
-            position: 12,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 116,
-            from: 'Street 13',
-            to: 'Street 14',
-            details: null,
-            position: 13,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 117,
-            from: 'Street 14',
-            to: 'Street 15',
-            details: {
-              transport: 'plane',
-              code: 'PLN-123',
-              gate: '9',
-            },
-            position: 14,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 118,
-            from: 'Street 15',
-            to: 'Street 16',
-            details: {
-              transport: 'train',
-              platform: '4',
-            },
-            position: 15,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 119,
-            from: 'Street 16',
-            to: 'Street 17',
-            details: null,
-            position: 16,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 120,
-            from: 'Street 17',
-            to: 'Street 18',
-            details: {
-              transport: 'bus',
-              extra: 'Bus stop info',
-            },
-            position: 17,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 121,
-            from: 'Street 18',
-            to: 'Street 19',
-            details: {
-              transport: 'boat',
-              code: 'BT-789',
-              seat: '6B',
-            },
-            position: 18,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 122,
-            from: 'Street 19',
-            to: 'Street 20',
-            details: null,
-            position: 19,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 123,
-            from: 'Street 20',
-            to: 'Street 21',
-            details: {
-              transport: 'train',
-              code: 'RJX999',
-              platform: '2',
-              gate: 'B',
-              seat: '5D',
-              extra: 'Final trip extra',
-              toExtra: 'Destination extra',
-            },
-            position: 20,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-        ],
-        createdAt: '2025-08-10T16:25:30.006Z',
-        updatedAt: '2025-08-10T16:25:30.006Z',
-        deletedAt: null,
-      },
-    },
+    type: Itinerary,
   })
   @ApiBadRequestResponse({
-    description: 'Bad Request',
-    schema: {
-      example: [
-        {
-          message: [
-            'tickets must contain at least 1 elements',
-            'tickets must be an array',
-          ],
-          error: 'Bad Request',
-          statusCode: 400,
-        },
-        {
-          message: ['tickets.0.from must be a string'],
-          error: 'Bad Request',
-          statusCode: 400,
-        },
-      ],
-    },
+    description: 'Invalid input data',
+    schema: BadRequestSchema,
   })
   @ApiInternalServerErrorResponse({
-    description: 'Internal Server Error',
-    schema: {
-      example: {
-        statusCode: 500,
-        message: 'Internal server error',
-      },
-    },
+    description: 'Internal server error',
+    schema: InternalServerErrorSchema,
   })
   async create(@Body() dto: CreateItineraryDto) {
     return await this.itineraryService.createAndSort(dto);
   }
 
   @Get()
-  @ApiResponse({
-    status: 200,
-    description: 'Returns all itineraries',
+  @ApiOperation({
+    summary: 'Retrieve all itineraries',
+    description:
+      'Returns a list of all itineraries with their tickets and human-readable descriptions.',
+  })
+  @ApiOkResponse({
+    description: 'List of itineraries',
     type: Itinerary,
     isArray: true,
-    examples: {
-      withOneOrMore: {
-        summary: 'With one or more itineraries',
-        value: [
-          {
-            id: 1,
-            name: null,
-            tickets: [
-              {
-                id: 1,
-                from: 'Street 01',
-                to: 'Street 02',
-                details: null,
-                position: 1,
-                createdAt: '2025-08-10T12:24:42.508Z',
-                updatedAt: '2025-08-10T12:24:42.508Z',
-                deletedAt: null,
-              },
-            ],
-            createdAt: '2025-08-10T12:24:42.508Z',
-            updatedAt: '2025-08-10T12:24:42.508Z',
-            deletedAt: null,
-            humanReadable:
-              '0. Start.\n1. From Street 01, board the transport to Street 02.\n2. Last destination reached.',
-          },
-          {
-            id: 2,
-            name: null,
-            tickets: [
-              {
-                id: 2,
-                from: 'Street 01',
-                to: 'Street 02',
-                details: null,
-                position: 1,
-                createdAt: '2025-08-10T12:29:07.233Z',
-                updatedAt: '2025-08-10T12:29:07.233Z',
-                deletedAt: null,
-              },
-              {
-                id: 3,
-                from: 'Street 02',
-                to: 'Street 03',
-                details: null,
-                position: 2,
-                createdAt: '2025-08-10T12:29:07.233Z',
-                updatedAt: '2025-08-10T12:29:07.233Z',
-                deletedAt: null,
-              },
-            ],
-            createdAt: '2025-08-10T12:29:07.233Z',
-            updatedAt: '2025-08-10T12:29:07.233Z',
-            deletedAt: null,
-            humanReadable:
-              '0. Start.\n1. From Street 01, board the transport to Street 02.\n2. From Street 02, board the transport to Street 03.\n3. Last destination reached.',
-          },
-          {
-            id: 3,
-            name: null,
-            tickets: [
-              {
-                id: 4,
-                from: 'Street 01',
-                to: 'Street 02',
-                details: null,
-                position: 1,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 5,
-                from: 'Street 02',
-                to: 'Street 03',
-                details: {
-                  code: 'AB-123',
-                  gate: '4',
-                  seat: '42',
-                  platform: '2',
-                  transport: 'train',
-                },
-                position: 2,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 6,
-                from: 'Street 03',
-                to: 'Street 04',
-                details: null,
-                position: 3,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 7,
-                from: 'Street 04',
-                to: 'Street 05',
-                details: {
-                  code: 'BUS-789',
-                  seat: '10B',
-                  transport: 'bus',
-                },
-                position: 4,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 8,
-                from: 'Street 05',
-                to: 'Street 06',
-                details: null,
-                position: 5,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 9,
-                from: 'Street 06',
-                to: 'Street 07',
-                details: {
-                  code: 'FL-456',
-                  gate: '12',
-                  seat: '3A',
-                  transport: 'flight',
-                },
-                position: 6,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 10,
-                from: 'Street 07',
-                to: 'Street 08',
-                details: null,
-                position: 7,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 11,
-                from: 'Street 08',
-                to: 'Street 09',
-                details: null,
-                position: 8,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 12,
-                from: 'Street 09',
-                to: 'Street 10',
-                details: {
-                  code: 'FER-321',
-                  transport: 'ferry',
-                },
-                position: 9,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-              {
-                id: 13,
-                from: 'Street 10',
-                to: 'Street 11',
-                details: null,
-                position: 10,
-                createdAt: '2025-08-10T12:31:24.028Z',
-                updatedAt: '2025-08-10T12:31:24.028Z',
-                deletedAt: null,
-              },
-            ],
-            createdAt: '2025-08-10T12:31:24.028Z',
-            updatedAt: '2025-08-10T12:31:24.028Z',
-            deletedAt: null,
-            humanReadable:
-              '0. Start.\n1. From Street 01, board the transport to Street 02.\n2. From Street 02, board the transport to Street 03.\n3. From Street 03, board the transport to Street 04.\n4. From Street 04, board the transport to Street 05.\n5. From Street 05, board the transport to Street 06.\n6. From Street 06, board the transport to Street 07.\n7. From Street 07, board the transport to Street 08.\n8. From Street 08, board the transport to Street 09.\n9. From Street 09, board the transport to Street 10.\n10. From Street 10, board the transport to Street 11.\n11. Last destination reached.',
-          },
-          {
-            id: 4,
-            name: null,
-            tickets: [
-              {
-                id: 14,
-                from: 'Street 01',
-                to: 'Street 02',
-                details: null,
-                position: 1,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 15,
-                from: 'Street 02',
-                to: 'Street 03',
-                details: {
-                  code: 'AB-123',
-                  gate: '4',
-                  seat: '42',
-                  platform: '2',
-                  transport: 'train',
-                },
-                position: 2,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 16,
-                from: 'Street 03',
-                to: 'Street 04',
-                details: null,
-                position: 3,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 17,
-                from: 'Street 04',
-                to: 'Street 05',
-                details: {
-                  code: 'BUS-789',
-                  seat: '10B',
-                  transport: 'bus',
-                },
-                position: 4,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 18,
-                from: 'Street 05',
-                to: 'Street 06',
-                details: null,
-                position: 5,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 19,
-                from: 'Street 06',
-                to: 'Street 07',
-                details: {
-                  code: 'FL-456',
-                  gate: '12',
-                  seat: '3A',
-                  transport: 'flight',
-                },
-                position: 6,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 20,
-                from: 'Street 07',
-                to: 'Street 08',
-                details: null,
-                position: 7,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 21,
-                from: 'Street 08',
-                to: 'Street 09',
-                details: null,
-                position: 8,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 22,
-                from: 'Street 09',
-                to: 'Street 10',
-                details: {
-                  code: 'FER-321',
-                  transport: 'ferry',
-                },
-                position: 9,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-              {
-                id: 23,
-                from: 'Street 10',
-                to: 'Street 11',
-                details: null,
-                position: 10,
-                createdAt: '2025-08-10T12:33:30.615Z',
-                updatedAt: '2025-08-10T12:33:30.615Z',
-                deletedAt: null,
-              },
-            ],
-            createdAt: '2025-08-10T12:33:30.615Z',
-            updatedAt: '2025-08-10T12:33:30.615Z',
-            deletedAt: null,
-            humanReadable:
-              '0. Start.\n1. From Street 01, board the transport to Street 02.\n2. From Street 02, board the transport to Street 03.\n3. From Street 03, board the transport to Street 04.\n4. From Street 04, board the transport to Street 05.\n5. From Street 05, board the transport to Street 06.\n6. From Street 06, board the transport to Street 07.\n7. From Street 07, board the transport to Street 08.\n8. From Street 08, board the transport to Street 09.\n9. From Street 09, board the transport to Street 10.\n10. From Street 10, board the transport to Street 11.\n11. Last destination reached.',
-          },
-        ],
-      },
-
-      withEmpty: {
-        summary: 'With no itineraries',
-        value: [],
-      },
+    schema: {
+      example: [
+        {
+          id: 1,
+          name: null,
+          tickets: [
+            {
+              id: 1,
+              from: 'Street 01',
+              to: 'Street 02',
+              details: null,
+              position: 1,
+              createdAt: '2025-08-10T12:24:42.508Z',
+              updatedAt: '2025-08-10T12:24:42.508Z',
+              deletedAt: null,
+            },
+          ],
+          createdAt: '2025-08-10T12:24:42.508Z',
+          updatedAt: '2025-08-10T12:24:42.508Z',
+          deletedAt: null,
+          humanReadable:
+            '0. Start.\n1. From Street 01, board the transport to Street 02.\n2. Last destination reached.',
+        },
+      ],
     },
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
-    schema: {
-      example: {
-        statusCode: 500,
-        message: 'Internal server error',
-      },
-    },
+    schema: InternalServerErrorSchema,
   })
   findAll() {
     return this.itineraryService.findAll();
   }
+
   @Get(':id')
+  @ApiOperation({
+    summary: 'Retrieve a single itinerary by ID',
+    description:
+      'Returns an itinerary with the specified ID, including its tickets and human-readable description.',
+  })
   @ApiOkResponse({
     description: 'Itinerary found',
+    type: Itinerary,
     schema: {
       example: {
         id: 9,
         name: null,
         tickets: [
           {
-            id: 121,
-            from: 'Street 18',
-            to: 'Street 19',
-            details: {
-              code: 'BT-789',
-              seat: '6B',
-              transport: 'boat',
-            },
-            position: 18,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
             id: 104,
             from: 'Street 01',
             to: 'Street 02',
             details: {
+              transport: 'train',
               code: 'RJX765',
+              platform: '3',
               gate: 'A',
               seat: '17C',
               extra: 'Extra info from location',
               toExtra: 'Extra info to location',
-              platform: '3',
-              transport: 'train',
             },
             position: 1,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 105,
-            from: 'Street 02',
-            to: 'Street 03',
-            details: null,
-            position: 2,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 106,
-            from: 'Street 03',
-            to: 'Street 04',
-            details: {
-              seat: '10B',
-              transport: 'bus',
-            },
-            position: 3,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 107,
-            from: 'Street 04',
-            to: 'Street 05',
-            details: {
-              code: 'PLN-998',
-              gate: '7',
-              transport: 'plane',
-            },
-            position: 4,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 108,
-            from: 'Street 05',
-            to: 'Street 06',
-            details: null,
-            position: 5,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 109,
-            from: 'Street 06',
-            to: 'Street 07',
-            details: {
-              code: 'FL-456',
-              gate: '12',
-              seat: '3A',
-              transport: 'flight',
-            },
-            position: 6,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 110,
-            from: 'Street 07',
-            to: 'Street 08',
-            details: null,
-            position: 7,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 111,
-            from: 'Street 08',
-            to: 'Street 09',
-            details: {
-              code: 'FER-321',
-              extra: 'Ferry extra info',
-              transport: 'ferry',
-            },
-            position: 8,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 112,
-            from: 'Street 09',
-            to: 'Street 10',
-            details: null,
-            position: 9,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 113,
-            from: 'Street 10',
-            to: 'Street 11',
-            details: {
-              code: 'TR-444',
-              seat: '21A',
-              toExtra: 'Next station info',
-              platform: '1',
-              transport: 'train',
-            },
-            position: 10,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 114,
-            from: 'Street 11',
-            to: 'Street 12',
-            details: null,
-            position: 11,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 115,
-            from: 'Street 12',
-            to: 'Street 13',
-            details: {
-              code: 'BUS-007',
-              seat: '15C',
-              transport: 'bus',
-            },
-            position: 12,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 116,
-            from: 'Street 13',
-            to: 'Street 14',
-            details: null,
-            position: 13,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 117,
-            from: 'Street 14',
-            to: 'Street 15',
-            details: {
-              code: 'PLN-123',
-              gate: '9',
-              transport: 'plane',
-            },
-            position: 14,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 118,
-            from: 'Street 15',
-            to: 'Street 16',
-            details: {
-              platform: '4',
-              transport: 'train',
-            },
-            position: 15,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 119,
-            from: 'Street 16',
-            to: 'Street 17',
-            details: null,
-            position: 16,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 120,
-            from: 'Street 17',
-            to: 'Street 18',
-            details: {
-              extra: 'Bus stop info',
-              transport: 'bus',
-            },
-            position: 17,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 122,
-            from: 'Street 19',
-            to: 'Street 20',
-            details: null,
-            position: 19,
-            createdAt: '2025-08-10T16:25:30.006Z',
-            updatedAt: '2025-08-10T16:25:30.006Z',
-            deletedAt: null,
-          },
-          {
-            id: 123,
-            from: 'Street 20',
-            to: 'Street 21',
-            details: {
-              code: 'RJX999',
-              gate: 'B',
-              seat: '5D',
-              extra: 'Final trip extra',
-              toExtra: 'Destination extra',
-              platform: '2',
-              transport: 'train',
-            },
-            position: 20,
             createdAt: '2025-08-10T16:25:30.006Z',
             updatedAt: '2025-08-10T16:25:30.006Z',
             deletedAt: null,
@@ -1119,42 +198,17 @@ export class ItineraryController {
         updatedAt: '2025-08-10T16:25:30.006Z',
         deletedAt: null,
         humanReadable:
-          '0. Start.\n1. Board train - RJX765, Platform 3 - Gate A from Street 01 to Street 02 (Extra info to location). Seat number 17C, Extra info from location\n2. From Street 02, board the transport to Street 03.\n3. Board bus from Street 03 to Street 04. Seat number 10B\n4. Board plane - PLN-998, Gate 7 from Street 04 to Street 05.\n5. From Street 05, board the transport to Street 06.\n6. Board flight - FL-456, Gate 12 from Street 06 to Street 07. Seat number 3A\n7. From Street 07, board the transport to Street 08.\n8. Board ferry - FER-321 from Street 08 to Street 09. Ferry extra info\n9. From Street 09, board the transport to Street 10.\n10. Board train - TR-444, Platform 1 from Street 10 to Street 11 (Next station info). Seat number 21A\n11. From Street 11, board the transport to Street 12.\n12. Board bus - BUS-007 from Street 12 to Street 13. Seat number 15C\n13. From Street 13, board the transport to Street 14.\n14. Board plane - PLN-123, Gate 9 from Street 14 to Street 15.\n15. Board train, Platform 4 from Street 15 to Street 16.\n16. From Street 16, board the transport to Street 17.\n17. Board bus from Street 17 to Street 18. Bus stop info\n18. Board boat - BT-789 from Street 18 to Street 19. Seat number 6B\n19. From Street 19, board the transport to Street 20.\n20. Board train - RJX999, Platform 2 - Gate B from Street 20 to Street 21 (Destination extra). Seat number 5D, Final trip extra\n21. Last destination reached.',
+          '0. Start.\n1. Board train - RJX765, Platform 3 - Gate A from Street 01 to Street 02 (Extra info to location). Seat number 17C, Extra info from location\n2. Last destination reached.',
       },
     },
   })
   @ApiNotFoundResponse({
     description: 'Itinerary not found',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example:
-            'Itinerary with id [1234] not found. (Value 1234 was provided in the URL path parameter /itineraries/1234)',
-        },
-        error: {
-          type: 'string',
-          example: 'Not Found',
-        },
-        statusCode: {
-          type: 'number',
-          example: 404,
-        },
-      },
-    },
-    example: {
-      message: 'Itinerary with id [1234] not found',
-      error: 'Not Found',
-      statusCode: 404,
-    },
+    schema: NotFoundSchema,
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
-    example: {
-      statusCode: 500,
-      message: 'Internal server error',
-    },
+    schema: InternalServerErrorSchema,
   })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.itineraryService.findById(id);

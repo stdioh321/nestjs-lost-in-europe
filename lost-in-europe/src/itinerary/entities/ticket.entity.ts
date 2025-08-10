@@ -35,6 +35,8 @@ export type TicketDetails = {
   extra?: string;
 
   toExtra?: string;
+
+  others?: string;
 };
 
 @Index('idx_itinerary', ['itinerary'])
