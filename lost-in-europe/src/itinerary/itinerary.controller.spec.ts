@@ -3,6 +3,7 @@ import { ItineraryController } from './itinerary.controller';
 import { ItineraryService } from './itinerary.service';
 import { Itinerary } from './entities/itinerary.entity';
 import { CreateTicketDto } from './dto/create-ticket.dto';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('ItineraryController', () => {
   let controller: ItineraryController;
@@ -85,6 +86,117 @@ describe('ItineraryController', () => {
       });
 
       expect(result).toEqual(mockResult);
+      expect(service.createAndSort).toHaveBeenCalledWith({
+        name: 'Trip',
+        tickets: [{ from: 'Street 01', to: 'Street 02' }],
+      });
+    });
+
+    it('should throw BadRequestException for empty tickets array', async () => {
+      service.createAndSort.mockRejectedValue(
+        new BadRequestException('tickets must contain at least 1 elements'),
+      );
+
+      await expect(controller.create({ tickets: [] })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(controller.create({ tickets: [] })).rejects.toMatchObject({
+        message: 'tickets must contain at least 1 elements',
+      });
+    });
+
+    it('should throw BadRequestException for missing "from" field', async () => {
+      service.createAndSort.mockRejectedValue(
+        new BadRequestException('tickets[0].from should not be empty'),
+      );
+
+      await expect(
+        controller.create({
+          tickets: [{ to: 'Street 02' } as CreateTicketDto],
+        }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        controller.create({
+          tickets: [{ to: 'Street 02' } as CreateTicketDto],
+        }),
+      ).rejects.toMatchObject({
+        message: 'tickets[0].from should not be empty',
+      });
+    });
+
+    it('should throw BadRequestException for missing "to" field', async () => {
+      service.createAndSort.mockRejectedValue(
+        new BadRequestException('tickets.0.to must be a string'),
+      );
+
+      await expect(
+        controller.create({
+          tickets: [{ from: 'Street 01' } as CreateTicketDto],
+        }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        controller.create({
+          tickets: [{ from: 'Street 01' } as CreateTicketDto],
+        }),
+      ).rejects.toMatchObject({
+        message: 'tickets.0.to must be a string',
+      });
+    });
+
+    it('should throw BadRequestException for non-sequential tickets', async () => {
+      service.createAndSort.mockRejectedValue(
+        new BadRequestException(
+          'Incomplete itinerary: some tickets are not sequentially connected.',
+        ),
+      );
+
+      await expect(
+        controller.create({
+          tickets: [
+            { from: 'Street 01', to: 'Street 02' },
+            { from: 'Street 03', to: 'Street 04' },
+          ] as CreateTicketDto[],
+        }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        controller.create({
+          tickets: [
+            { from: 'Street 01', to: 'Street 02' },
+            { from: 'Street 03', to: 'Street 04' },
+          ] as CreateTicketDto[],
+        }),
+      ).rejects.toMatchObject({
+        message:
+          'Incomplete itinerary: some tickets are not sequentially connected.',
+      });
+    });
+
+    it('should throw BadRequestException for cyclic itinerary', async () => {
+      service.createAndSort.mockRejectedValue(
+        new BadRequestException(
+          "Itinerary contains a cycle: the route loops back to a previous location and never reaches a final destination. \nDetected loop starting at 'Street 01'.",
+        ),
+      );
+
+      await expect(
+        controller.create({
+          tickets: [
+            { from: 'Street 01', to: 'Street 02' },
+            { from: 'Street 02', to: 'Street 01' },
+          ] as CreateTicketDto[],
+        }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        controller.create({
+          tickets: [
+            { from: 'Street 01', to: 'Street 02' },
+            { from: 'Street 02', to: 'Street 01' },
+          ] as CreateTicketDto[],
+        }),
+      ).rejects.toMatchObject({
+        message:
+          "Itinerary contains a cycle: the route loops back to a previous location and never reaches a final destination. \nDetected loop starting at 'Street 01'.",
+      });
     });
   });
 
@@ -95,6 +207,16 @@ describe('ItineraryController', () => {
       const result = await controller.findAll();
 
       expect(result).toEqual(mockItineraries);
+      expect(service.findAll).toHaveBeenCalled();
+    });
+
+    it('should return empty array when no itineraries exist', async () => {
+      service.findAll.mockResolvedValue([]);
+
+      const result = await controller.findAll();
+
+      expect(result).toEqual([]);
+      expect(service.findAll).toHaveBeenCalled();
     });
   });
 
@@ -105,6 +227,19 @@ describe('ItineraryController', () => {
       const result = await controller.findOne(1);
 
       expect(result).toEqual(mockItinerary);
+      expect(service.findById).toHaveBeenCalledWith(1);
+    });
+
+    it('should throw NotFoundException when itinerary is not found', async () => {
+      service.findById.mockRejectedValue(
+        new NotFoundException('Itinerary with id [1234] not found'),
+      );
+
+      await expect(controller.findOne(1234)).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne(1234)).rejects.toMatchObject({
+        message: 'Itinerary with id [1234] not found',
+      });
+      expect(service.findById).toHaveBeenCalledWith(1234);
     });
   });
 });
