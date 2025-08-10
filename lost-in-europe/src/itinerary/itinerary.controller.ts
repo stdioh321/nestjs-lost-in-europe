@@ -65,6 +65,34 @@ export class ItineraryController {
   })
   @ApiBody({
     type: CreateItineraryDto,
+    schema: {
+      type: 'object',
+      properties: {
+        tickets: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              from: { type: 'string' },
+              to: { type: 'string' },
+              details: {
+                type: 'object',
+                properties: {
+                  transport: { type: 'string' },
+                  code: { type: 'string' },
+                  platform: { type: 'string' },
+                  gate: { type: 'string' },
+                  seat: { type: 'string' },
+                  extra: { type: 'string' },
+                  toExtra: { type: 'string' },
+                  others: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     examples: {
       complete: {
         summary: 'Complete itinerary with multiple tickets',
@@ -103,7 +131,7 @@ export class ItineraryController {
   })
   @ApiCreatedResponse({
     description: 'Itinerary created successfully',
-    type: Itinerary,
+    type: CreateItineraryDto,
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',

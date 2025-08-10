@@ -9,7 +9,7 @@ export class CreateTicketDto {
   from: string;
 
   @IsString()
-  @ApiProperty({ example: 'Star Avenue' })
+  @ApiProperty({ example: 'Star Aven' })
   to: string;
 
   @IsOptional()
