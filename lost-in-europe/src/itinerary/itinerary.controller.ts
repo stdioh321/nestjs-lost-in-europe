@@ -21,19 +21,6 @@ import { ItineraryService } from './itinerary.service';
 import { CreateItineraryDto } from './dto/create-itinerary.dto';
 import { Itinerary } from './entities/itinerary.entity';
 
-const BadRequestSchema = {
-  type: 'object',
-  properties: {
-    statusCode: { type: 'number', example: 400 },
-    message: {
-      type: 'array',
-      items: { type: 'string' },
-      example: ['Invalid input data'],
-    },
-    error: { type: 'string', example: 'Bad Request' },
-  },
-};
-
 const NotFoundSchema = {
   type: 'object',
   properties: {
@@ -135,7 +122,69 @@ export class ItineraryController {
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',
-    schema: BadRequestSchema,
+    examples: {
+      noTickets: {
+        summary: 'No tickets provided',
+        value: {
+          message: [
+            'tickets must contain at least 1 elements',
+            'tickets must be an array',
+          ],
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+      emptyTickets: {
+        summary: 'Empty tickets array',
+        value: {
+          message: ['tickets must contain at least 1 elements'],
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+      missingFrom: {
+        summary: 'Missing "from" field',
+        value: {
+          message: ['tickets[0].from should not be empty'],
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+      missingTo: {
+        summary: 'Missing "to" field',
+        value: {
+          message: ['tickets.0.to must be a string'],
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+      notSequential: {
+        summary: 'Tickets are not sequential',
+        value: {
+          message:
+            'Incomplete itinerary: some tickets are not sequentially connected.',
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+      missingUniqueFrom: {
+        summary: 'Missing unique "from" field',
+        value: {
+          message: "duplicate 'from' detected: Street 03 (expects unique from)",
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+      missingUniqueTo: {
+        summary: 'Missing unique "to" field',
+        value: {
+          message:
+            "Itinerary contains a cycle: the route loops back to a previous location and never reaches a final destination. \nDetected loop starting at 'Street 10'. \nEnsure that each 'from' and 'to' sequence forms a straight path without repeating locations.",
+          error: 'Bad Request',
+          statusCode: 400,
+        },
+      },
+    },
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
