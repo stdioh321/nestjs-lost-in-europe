@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Itinerary } from './entities/itinerary.entity';
-import { Ticket } from './entities/ticket.entity';
+import { Ticket, TicketDetails } from './entities/ticket.entity';
 import { CreateItineraryDto } from './dto/create-itinerary.dto';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 
@@ -19,7 +19,28 @@ export class ItineraryService {
     @InjectRepository(Ticket) private ticketRepository: Repository<Ticket>,
   ) {}
 
-  async createAndSort(dto: CreateItineraryDto): Promise<Itinerary> {
+  public async findAll(): Promise<(Itinerary & { humanReadable: string })[]> {
+    const list = await this.itineraryRepository.find({
+      where: {},
+      order: { id: 'ASC' },
+    });
+
+    return list.map((itinerary) => ({
+      ...itinerary,
+      humanReadable: this.humanReadable(itinerary),
+    }));
+  }
+
+  public async findById(
+    id: number,
+  ): Promise<Itinerary & { humanReadable: string }> {
+    const itinerary = await this.itineraryRepository.findOne({ where: { id } });
+    if (!itinerary)
+      throw new NotFoundException(`Itinerary with id [${id}] not found`);
+    return { ...itinerary, humanReadable: this.humanReadable(itinerary) };
+  }
+
+  public async createAndSort(dto: CreateItineraryDto): Promise<Itinerary> {
     const orderedTickets = this.sortTickets(dto.tickets);
 
     const ticketsEntities = orderedTickets.map((ticket, idx) =>
@@ -109,25 +130,6 @@ Ensure that each 'from' and 'to' sequence forms a straight path without repeatin
     );
   }
 
-  public async findAll(): Promise<(Itinerary & { humanReadable: string })[]> {
-    const list = await this.itineraryRepository.find({
-      where: {},
-      order: { id: 'ASC' },
-    });
-
-    return list.map((itinerary) => ({
-      ...itinerary,
-      humanReadable: this.humanReadable(itinerary),
-    }));
-  }
-
-  async findById(id: number): Promise<Itinerary & { humanReadable: string }> {
-    const itinerary = await this.itineraryRepository.findOne({ where: { id } });
-    if (!itinerary)
-      throw new NotFoundException(`Itinerary with id [${id}] not found`);
-    return { ...itinerary, humanReadable: this.humanReadable(itinerary) };
-  }
-
   public humanReadable(itinerary: Itinerary): string {
     if (!itinerary.tickets?.length) return 'No tickets.';
 
@@ -152,36 +154,57 @@ Ensure that each 'from' and 'to' sequence forms a straight path without repeatin
   }
 
   public ticketToText(ticket: Ticket): string {
-    const fromStr = ticket.from;
-    const toStr = ticket.to;
     const details = ticket.details || {};
-    const toExtra = details.toExtra ? `${details.toExtra}` : null;
-    const toStrWithExtra = toExtra ? `${toStr} (${toExtra})` : toStr;
 
+    const fromStr = ticket.from;
+    const toStrWithExtra = this.ticketToTextBuildToStringWithExtra(
+      ticket.to,
+      details.toExtra,
+    );
+    const transportLine = this.ticketToTextBuildTransportLine(
+      details,
+      fromStr,
+      toStrWithExtra,
+    );
+    const extrasLine = this.ticketToTextBuildExtrasLine(details);
+
+    return `${transportLine}${extrasLine}`;
+  }
+
+  public ticketToTextBuildToStringWithExtra(
+    to: string,
+    toExtra?: string,
+  ): string {
+    return toExtra ? `${to} (${toExtra})` : to;
+  }
+
+  public ticketToTextBuildTransportLine(
+    details: TicketDetails,
+    fromStr: string,
+    toStrWithExtra: string,
+  ): string {
     const transport = details.transport;
     const code = details.code ? ` - ${details.code}` : '';
 
     const platform = details.platform ? `Platform ${details.platform}` : '';
     const gate = details.gate ? `Gate ${details.gate}` : '';
-
-    const platformAndGate = [platform, gate].filter((item) => item).join(' - ');
-
-    let line = '';
+    const platformAndGate = [platform, gate].filter(Boolean).join(' - ');
 
     if (transport) {
-      line += `Board ${transport}${code}`;
+      let line = `Board ${transport}${code}`;
       if (platformAndGate) line += `, ${platformAndGate}`;
       line += ` from ${fromStr} to ${toStrWithExtra}.`;
+      return line;
     } else {
-      line += `From ${fromStr}, board the transport to ${toStrWithExtra}.`;
+      return `From ${fromStr}, board the transport to ${toStrWithExtra}.`;
     }
+  }
 
+  public ticketToTextBuildExtrasLine(details: TicketDetails): string {
     const seat = details.seat ? `Seat number ${details.seat}` : '';
     const fromExtra = details.extra ? `${details.extra}` : '';
 
     const extrasArr = [seat, fromExtra].filter(Boolean);
-    if (extrasArr.length) line += ` ${extrasArr.join(', ')}`;
-
-    return line;
+    return extrasArr.length ? ` ${extrasArr.join(', ')}` : '';
   }
 }
