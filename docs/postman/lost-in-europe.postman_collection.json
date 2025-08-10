@@ -1,0 +1,351 @@
+{
+	"info": {
+		"_postman_id": "40bbb015-dde7-4d3e-b79f-3f7545b879f8",
+		"name": "lost-in-europe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28883546"
+	},
+	"item": [
+		{
+			"name": "create-itinerary",
+			"item": [
+				{
+					"name": "valid__create-itinerary",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": [\n        {\n            \"from\": \"Street 01\",\n            \"to\": \"Street 02\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"code\": \"RJX765\",\n                \"platform\": \"3\",\n                \"gate\": \"A\",\n                \"seat\": \"17C\",\n                \"extra\": \"Extra info from location\",\n                \"toExtra\": \"Extra info to location\"\n            }\n        },\n        {\n            \"from\": \"Street 02\",\n            \"to\": \"Street 03\",\n            \"details\": {\n                \"others\": \"Some others\"\n            }\n        },\n        {\n            \"from\": \"Street 03\",\n            \"to\": \"Street 04\",\n            \"details\": {\n                \"transport\": \"bus\",\n                \"seat\": \"10B\"\n            }\n        },\n        {\n            \"from\": \"Street 04\",\n            \"to\": \"Street 05\",\n            \"details\": {\n                \"transport\": \"plane\",\n                \"code\": \"PLN-998\",\n                \"gate\": \"7\"\n            }\n        },\n        {\n            \"from\": \"Street 05\",\n            \"to\": \"Street 06\"\n        },\n        {\n            \"from\": \"Street 06\",\n            \"to\": \"Street 07\",\n            \"details\": {\n                \"transport\": \"flight\",\n                \"code\": \"FL-456\",\n                \"gate\": \"12\",\n                \"seat\": \"3A\"\n            }\n        },\n        {\n            \"from\": \"Street 07\",\n            \"to\": \"Street 08\"\n        },\n        {\n            \"from\": \"Street 08\",\n            \"to\": \"Street 09\",\n            \"details\": {\n                \"transport\": \"ferry\",\n                \"code\": \"FER-321\",\n                \"extra\": \"Ferry extra info\"\n            }\n        },\n        {\n            \"from\": \"Street 09\",\n            \"to\": \"Street 10\"\n        },\n        {\n            \"from\": \"Street 10\",\n            \"to\": \"Street 11\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"code\": \"TR-444\",\n                \"platform\": \"1\",\n                \"seat\": \"21A\",\n                \"toExtra\": \"Next station info\"\n            }\n        },\n        {\n            \"from\": \"Street 11\",\n            \"to\": \"Street 12\"\n        },\n        {\n            \"from\": \"Street 12\",\n            \"to\": \"Street 13\",\n            \"details\": {\n                \"transport\": \"bus\",\n                \"code\": \"BUS-007\",\n                \"seat\": \"15C\"\n            }\n        },\n        {\n            \"from\": \"Street 13\",\n            \"to\": \"Street 14\"\n        },\n        {\n            \"from\": \"Street 14\",\n            \"to\": \"Street 15\",\n            \"details\": {\n                \"transport\": \"plane\",\n                \"code\": \"PLN-123\",\n                \"gate\": \"9\"\n            }\n        },\n        {\n            \"from\": \"Street 15\",\n            \"to\": \"Street 16\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"platform\": \"4\"\n            }\n        },\n        {\n            \"from\": \"Street 16\",\n            \"to\": \"Street 17\"\n        },\n        {\n            \"from\": \"Street 17\",\n            \"to\": \"Street 18\",\n            \"details\": {\n                \"transport\": \"bus\",\n                \"extra\": \"Bus stop info\"\n            }\n        },\n        {\n            \"from\": \"Street 18\",\n            \"to\": \"Street 19\",\n            \"details\": {\n                \"transport\": \"boat\",\n                \"code\": \"BT-789\",\n                \"seat\": \"6B\"\n            }\n        },\n        {\n            \"from\": \"Street 19\",\n            \"to\": \"Street 20\"\n        },\n        {\n            \"from\": \"Street 20\",\n            \"to\": \"Street 21\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"code\": \"RJX999\",\n                \"platform\": \"2\",\n                \"gate\": \"B\",\n                \"seat\": \"5D\",\n                \"extra\": \"Final trip extra\",\n                \"toExtra\": \"Destination extra\"\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__no-tickets",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__empty-tickets-array",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__invalid-payload-missing-from",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": [\n        {\n            \"to\": \"Street 02\"\n        },\n        {\n            \"from\": \"Street 02\",\n            \"to\": \"Street 03\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__invalid-payload-missing-to",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": [\n        {\n            \"from\": \"Street 01\"\n        },\n        {\n            \"from\": \"Street 02\",\n            \"to\": \"Street 03\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__missing-from-to-correct-conection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": [\n        {\n            \"from\": \"Street 07\",\n            \"to\": \"Street 08\"\n        },\n        {\n            \"from\": \"Street 02\",\n            \"to\": \"Street 05\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"code\": \"AB-123\",\n                \"platform\": \"2\",\n                \"seat\": \"42\",\n                \"gate\": \"4\"\n            }\n        },\n        {\n            \"from\": \"Street 10\",\n            \"to\": \"Street 11\"\n        },\n        {\n            \"from\": \"Street 04\",\n            \"to\": \"Street 05\",\n            \"details\": {\n                \"transport\": \"bus\",\n                \"code\": \"BUS-789\",\n                \"seat\": \"10B\"\n            }\n        },\n        {\n            \"from\": \"Street 01\",\n            \"to\": \"Street 02\"\n        },\n        {\n            \"from\": \"Street 06\",\n            \"to\": \"Street 07\",\n            \"details\": {\n                \"transport\": \"flight\",\n                \"code\": \"FL-456\",\n                \"gate\": \"12\",\n                \"seat\": \"3A\"\n            }\n        },\n        {\n            \"from\": \"Street 05\",\n            \"to\": \"Street 06\"\n        },\n        {\n            \"from\": \"Street 09\",\n            \"to\": \"Street 10\",\n            \"details\": {\n                \"transport\": \"ferry\",\n                \"code\": \"FER-321\"\n            }\n        },\n        {\n            \"from\": \"Street 03\",\n            \"to\": \"Street 04\"\n        },\n        {\n            \"from\": \"Street 08\",\n            \"to\": \"Street 09\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__missing-unique-start-from-create-itinerary",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": [\n        {\n            \"from\": \"Street 07\",\n            \"to\": \"Street 08\"\n        },\n        {\n            \"from\": \"Street 02\",\n            \"to\": \"Street 03\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"code\": \"AB-123\",\n                \"platform\": \"2\",\n                \"seat\": \"42\",\n                \"gate\": \"4\"\n            }\n        },\n        {\n            \"from\": \"Street 10\",\n            \"to\": \"Street 11\"\n        },\n        {\n            \"from\": \"Street 04\",\n            \"to\": \"Street 05\",\n            \"details\": {\n                \"transport\": \"bus\",\n                \"code\": \"BUS-789\",\n                \"seat\": \"10B\"\n            }\n        },\n        {\n            \"from\": \"Street 03\",\n            \"to\": \"Street 02\"\n        },\n        {\n            \"from\": \"Street 06\",\n            \"to\": \"Street 07\",\n            \"details\": {\n                \"transport\": \"flight\",\n                \"code\": \"FL-456\",\n                \"gate\": \"12\",\n                \"seat\": \"3A\"\n            }\n        },\n        {\n            \"from\": \"Street 05\",\n            \"to\": \"Street 06\"\n        },\n        {\n            \"from\": \"Street 09\",\n            \"to\": \"Street 10\",\n            \"details\": {\n                \"transport\": \"ferry\",\n                \"code\": \"FER-321\"\n            }\n        },\n        {\n            \"from\": \"Street 03\",\n            \"to\": \"Street 04\"\n        },\n        {\n            \"from\": \"Street 08\",\n            \"to\": \"Street 09\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__missing-unique-end-to-create-itinerary",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tickets\": [\n        {\n            \"from\": \"Street 07\",\n            \"to\": \"Street 08\"\n        },\n        {\n            \"from\": \"Street 02\",\n            \"to\": \"Street 03\",\n            \"details\": {\n                \"transport\": \"train\",\n                \"code\": \"AB-123\",\n                \"platform\": \"2\",\n                \"seat\": \"42\",\n                \"gate\": \"4\"\n            }\n        },\n        {\n            \"from\": \"Street 10\",\n            \"to\": \"Street 09\"\n        },\n        {\n            \"from\": \"Street 04\",\n            \"to\": \"Street 05\",\n            \"details\": {\n                \"transport\": \"bus\",\n                \"code\": \"BUS-789\",\n                \"seat\": \"10B\"\n            }\n        },\n        {\n            \"from\": \"Street 01\",\n            \"to\": \"Street 02\"\n        },\n        {\n            \"from\": \"Street 06\",\n            \"to\": \"Street 07\",\n            \"details\": {\n                \"transport\": \"flight\",\n                \"code\": \"FL-456\",\n                \"gate\": \"12\",\n                \"seat\": \"3A\"\n            }\n        },\n        {\n            \"from\": \"Street 05\",\n            \"to\": \"Street 06\"\n        },\n        {\n            \"from\": \"Street 09\",\n            \"to\": \"Street 10\",\n            \"details\": {\n                \"transport\": \"ferry\",\n                \"code\": \"FER-321\"\n            }\n        },\n        {\n            \"from\": \"Street 03\",\n            \"to\": \"Street 04\"\n        },\n        {\n            \"from\": \"Street 08\",\n            \"to\": \"Street 09\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "get-all",
+			"item": [
+				{
+					"name": "valid__get-all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basr_url}}/itinerary",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "get-by-id",
+			"item": [
+				{
+					"name": "valid__get-by-id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basr_url}}/itinerary/:id",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__not-found",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basr_url}}/itinerary/:id",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "9999999"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid__non-numeric-id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basr_url}}/itinerary/:id",
+							"host": [
+								"{{basr_url}}"
+							],
+							"path": [
+								"itinerary",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "abc"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "basr_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}
