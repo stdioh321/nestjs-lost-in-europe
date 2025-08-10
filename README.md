@@ -2,10 +2,15 @@
 
 ## Overview
 
-The **Lost in Europe — Itineraries API** is a RESTful API built with **NestJS**, **TypeORM**, and **PostgreSQL**, designed to manage and sort travel itineraries. It allows users to create, retrieve, and view itineraries with detailed ticket information, including transportation type, platform, gate, seat, and more. The API generates human-readable descriptions for itineraries and is documented with **Swagger** for easy exploration. The application is containerized using **Docker** and uses **Docker Compose** for local development and testing.
+The **Lost in Europe — Itineraries API** is a RESTful API built with **NestJS**, **TypeORM**, and **PostgreSQL**, designed to manage and sort travel itineraries. It allows users to create, retrieve, and view itineraries with detailed ticket information, including transportation type, platform, gate, seat, and more. The API generates human-readable descriptions for itineraries and is documented with **Swagger** and a **Postman collection** for easy exploration and testing. The application is containerized using **Docker** and uses **Docker Compose** for local development and testing.
 
-- **Base URL**: `http://localhost:3000`
-- **Swagger Documentation**: `http://localhost:3000/docs`
+| Resource              | URL / Path                                                                                             | Preview |
+|-----------------------|-------------------------------------------------------------------------------------------------------|---------|
+| **Base URL**          | [http://localhost:3000](http://localhost:3000/itinerary)                                                                               | ![Itinerary](./docs/images/snap_0003.jpg)        |
+| **Swagger Docs**      | [http://localhost:3000/docs](http://localhost:3000/docs)                                              | ![Swagger](./docs/images/snap_0001.jpg) |
+| **Postman Collection**| [./docs/postman/lost-in-europe.postman_collection.json](./docs/postman/lost-in-europe.postman_collection.json) | ![Postman](./docs/images/snap_0002.jpg) |
+
+
 
 ## Table of Contents
 
