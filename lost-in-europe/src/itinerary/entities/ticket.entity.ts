@@ -26,11 +26,12 @@ export class Ticket {
   @Column({ type: 'jsonb', nullable: true })
   details: Record<string, unknown>;
 
-  @Column({ type: 'integer', nullable: true, name: '"order"' })
-  order: number;
+  @Column({ type: 'integer', nullable: true })
+  position: number;
 
   @ManyToOne(() => Itinerary, (itinerary) => itinerary.tickets, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   itinerary: Itinerary;
 
